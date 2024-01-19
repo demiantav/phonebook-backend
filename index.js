@@ -1,5 +1,7 @@
 import  express  from "express";
+import morgan from "morgan";
 
+let customLogFormat;
 const app = express();
 
 const PORT = 3001;
@@ -9,7 +11,19 @@ app.listen(PORT, () =>{
     console.log("Servidor activo localmente...")
 })
 
+
 app.use(express.json())
+
+app.use((req, res, next) => {
+  console.log('Request Body:', req.body);
+  next();
+});
+
+morgan.token('body', (request) => JSON.stringify(request.body))
+customLogFormat = `:method :url :status - :response-time ms - Content-Type: :req[Content-Type] - Request Body: :body`;
+app.use(morgan(customLogFormat))
+
+
 
 let persons= [
     { 
@@ -89,7 +103,7 @@ app.post("/api/persons", (request,response) => {
         response.status(409);
         
         return response.json({
-            error: "name must be unique"
+            error: "Name must be unique"
         })
     } else {
 
@@ -103,6 +117,8 @@ app.post("/api/persons", (request,response) => {
         persons = persons.concat(person)
 
         response.json(person);
+
+        console.log("post")
     }
     
 
