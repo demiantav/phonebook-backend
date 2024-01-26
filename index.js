@@ -1,18 +1,20 @@
 import  express  from "express";
 import morgan from "morgan";
+import cors from 'cors';
 
 let customLogFormat;
 const app = express();
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () =>{
 
     console.log("Servidor activo localmente...")
 })
 
-
+app.use(cors())
 app.use(express.json())
+app.use(express.static('dist'));
 
 app.use((req, res, next) => {
   console.log('Request Body:', req.body);
@@ -26,30 +28,55 @@ app.use(morgan(customLogFormat))
 
 
 let persons= [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    },
-    { 
-        "id": 5,
-        "name": "Poppendieck", 
-        "number": "39-23"
+    {
+        "name": "Arto Hellas",
+        "number": "040-123456",
+        "id": 1
+      },
+      {
+        "name": "Demian Tavolaro",
+        "number": "6745456",
+        "id": 3
+      },
+      {
+        "name": "elvira",
+        "number": "12312312",
+        "id": 8
+      },
+      {
+        "name": "rafael",
+        "number": "4545",
+        "id": 9
+      },
+      {
+        "name": "josefina",
+        "number": "444",
+        "id": 11
+      },
+      {
+        "name": "carlos",
+        "number": "5",
+        "id": 12
+      },
+      {
+        "name": "fabi",
+        "number": "5555",
+        "id": 13
+      },
+      {
+        "name": "jorge",
+        "number": "323232",
+        "id": 14
+      },
+      {
+        "name": "julio",
+        "number": "21",
+        "id": 16
+      },
+      {
+        "name": "juancho",
+        "number": "23490984",
+        "id": 17
       }
 ]
 
