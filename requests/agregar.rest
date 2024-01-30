@@ -1,0 +1,8 @@
+POST https://phonebook-backend-cfvb.onrender.com/api/persons/
+
+Content-Type: application/json
+
+{
+    "name": "Jinchy",
+    "number": 1234,
+}
