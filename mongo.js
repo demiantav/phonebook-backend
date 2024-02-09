@@ -33,13 +33,18 @@ const contact = new Contact({
 
 // contact.save()
 //  .then(result => {
-//     console.log(result);
+
+//     const [name, number] = result;
+
+//     console.log(`Added ${result.name} ${result.number} to the phonebook`);
 //     mongoose.connection.close();
 //  })
 
  Contact.find({}).then(result => {
+
+    console.log("Phonebook:")
     result.forEach(contact => {
-        console.log(contact);
+        console.log(`${contact.name} ${contact.number}`);
     })
 
     mongoose.connection.close();
