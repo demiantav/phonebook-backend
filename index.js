@@ -1,12 +1,14 @@
 import  express  from "express";
 import morgan from "morgan";
 import cors from 'cors';
+import Contact from "./models/contact.js";
 
 
 let customLogFormat;
 const app = express();
 
-const PORT = process.env.PORT || 3001;
+
+const PORT = process.env.PORT;
 
 app.listen(PORT, () =>{
 
@@ -83,8 +85,9 @@ let persons= [
 
 app.get("/api/persons", (request, response) => {
 
-
-    response.json(persons)
+  Contact.find({}).then(contact =>{
+    response.json(contact)
+  })
 
 
 })
@@ -115,7 +118,7 @@ app.post("/api/persons", (request,response) => {
 
     const body = request.body;
 
-    const checkName = () => persons.some(person => person.name === body.name);
+    // const checkName = () => persons.some(person => person.name === body.name);
 
     if(!body.name || !body.number){
 
@@ -124,30 +127,43 @@ app.post("/api/persons", (request,response) => {
         return response.json({
             error: "No name or number, please try again"
         })
-    }
-    
-    if(checkName()){
-
-        response.status(409);
-        
-        return response.json({
-            error: "Name must be unique"
-        })
     } else {
 
-        const person = {
-            name: body.name,
-            number:body.number,
-            id: generateID()
+      const contact = new Contact({
+        name: body.name,
+        number: body.number,
+      })
 
-        }
+      contact.save().then(contact =>{
+        console.log("Contacto guardado")
+        response.json(contact)
+      })
+    }
 
-        persons = persons.concat(person)
 
-        response.json(person);
+    
+    // if(checkName()){
+
+    //     response.status(409);
+        
+    //     return response.json({
+    //         error: "Name must be unique"
+    //     })
+    // } else {
+
+    //     const person = {
+    //         name: body.name,
+    //         number:body.number,
+    //         id: generateID()
+
+    //     }
+
+    //     persons = persons.concat(person)
+
+    //     response.json(person);
 
         console.log("post")
-    }
+    
     
 
     
