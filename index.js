@@ -172,15 +172,19 @@ app.post("/api/persons", (request,response) => {
 })
 
 app.get("/info", (request, response) => {
-
+console.log
 const date = new Date();
 
-    response.send(`
-       <p>Phonebook has info for ${persons.length} people<p>
-       
-       <p>${date}<p>
-    
+Contact.countDocuments({})
+ .then(result => {
+   response.send(`
+    <p>Phonebook has info for ${result} people<p>
+    <p>${date}<p>
     `)
+})
+
+
+    
 
 
 })
