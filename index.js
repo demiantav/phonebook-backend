@@ -8,12 +8,7 @@ let customLogFormat;
 const app = express();
 
 
-const PORT = process.env.PORT;
 
-app.listen(PORT, () =>{
-
-    console.log("Servidor activo localmente...")
-})
 
 app.use(cors())
 app.use(express.json())
@@ -83,35 +78,46 @@ let persons= [
       }
 ]
 
-app.get("/api/persons", (request, response) => {
+app.get("/api/persons", (request, response, next) => {
 
-  Contact.find({}).then(contact =>{
-    response.json(contact)
-  })
+  Contact.find({})
+   .then(contact =>{
+     response.json(contact)
+    })
+    .catch(error => next(error))
+
+
 
 
 })
 
-app.get("/api/persons/:id", (request,response) => {
+app.get("/api/persons/:id", (request,response,next) => {
 
-    const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
+    const id = request.params.id;
 
-    if(person){
-
-        response.json(person)
-    }else{
-
-        response.status(404).end();
-    }
+    Contact.findById(id)
+     .then(contact=>{
+      if(contact){
+        response.json(contact)
+      } else {
+        response.status(404).end()
+      }
+       
+     })
+     .catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request,response) => {
+app.delete("/api/persons/:id", (request,response, next) => {
 
-    const id = Number(request.params.id);
-    persons = persons.filter(person => person.id !== id);
+    const id = request.params.id;
+    
+    Contact.findByIdAndDelete(id)
+     .then(contact =>{
+       response.status(204).end()
+     })
+     .catch(error => next(error))
 
-    response.status(204).end()
+    
 })
 
 app.post("/api/persons", (request,response) => {
@@ -162,17 +168,28 @@ app.post("/api/persons", (request,response) => {
 
     //     response.json(person);
 
-        console.log("post")
-    
-    
+})
 
-    
+app.put("/api/persons/:id", (req, res, next) =>{
 
-    
+  const id = req.params.id,
+        body= req.body;
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Contact.findByIdAndUpdate(id, contact, {new: true})
+   .then(contactUpdated =>{
+    res.json(contactUpdated)
+
+   })
+   .catch(error => next(error))
 })
 
 app.get("/info", (request, response) => {
-console.log
+  
 const date = new Date();
 
 Contact.countDocuments({})
@@ -183,10 +200,33 @@ Contact.countDocuments({})
     `)
 })
 
-
-    
-
-
 })
 
-const generateID = () => Math.floor(Math.random() * 3000)
+// Error Middleware
+// Cuando se realice una peticion a una ruta inexistente, llega a este error, ruta no definida en servidor
+const routeError = (req, res, next) => {
+  console.log("Middleware Error Handling");
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(routeError)
+
+const idError = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+
+app.use(idError)
+
+const PORT = process.env.PORT;
+
+app.listen(PORT, () =>{
+
+    console.log("Servidor activo localmente...")
+})
