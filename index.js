@@ -120,30 +120,32 @@ app.delete("/api/persons/:id", (request,response, next) => {
     
 })
 
-app.post("/api/persons", (request,response) => {
+app.post("/api/persons", (request,response,next) => {
 
     const body = request.body;
 
     // const checkName = () => persons.some(person => person.name === body.name);
 
-    if(!body.name || !body.number){
+    // if(!body.name || !body.number){
 
-        response.status(404)
+    //     response.status(404)
 
-        return response.json({
-            error: "No name or number, please try again"
-        })
-    } else {
+    //     return response.json({
+    //         error: "No name or number, please try again"
+    //     })
+    // } else {
 
       const contact = new Contact({
         name: body.name,
         number: body.number,
       })
 
-      contact.save().then(contact =>{
+      contact.save()
+      .then(contact =>{
         console.log("Contacto guardado")
         response.json(contact)
       })
+      .catch(error => next(error))
     }
 
 
@@ -168,19 +170,19 @@ app.post("/api/persons", (request,response) => {
 
     //     response.json(person);
 
-})
+)
 
 app.put("/api/persons/:id", (req, res, next) =>{
 
-  const id = req.params.id,
-        body= req.body;
+  const id = req.params.id;
+  const {name, number} = req.body
 
-  const contact = {
-    name: body.name,
-    number: body.number,
-  }
+  
 
-  Contact.findByIdAndUpdate(id, contact, {new: true})
+  Contact.findByIdAndUpdate(
+     id,
+     {name,number},
+     {new: true, runValidators: true, context: "query"})
    .then(contactUpdated =>{
     res.json(contactUpdated)
 
@@ -216,7 +218,10 @@ const idError = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === "ValidationError"){
+    return response.status(400).send({error: error.message})
+
+  }
 
   next(error)
 }
